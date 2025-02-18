@@ -7,8 +7,13 @@ import com.IKov.MyChat_Auth.service.JwtTokenService;
 import com.IKov.MyChat_Auth.web.dto.LogoutRequest;
 import com.IKov.MyChat_Auth.web.dto.RegisterRequest;
 import com.IKov.MyChat_Auth.web.dto.mapper.UserMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +26,12 @@ public class AuthController {
     private final UserMapper userMapper;
 
     @PostMapping("/register")
-    public void register(@RequestBody RegisterRequest registerRequest){
+    public void register(@Valid @RequestBody RegisterRequest registerRequest, BindingResult bindingResult){
+
+        if(bindingResult.hasErrors()){
+        throw new RuntimeException();
+        }
+
         User user = userMapper.toEntity(registerRequest);
         authService.register(user);
     }
