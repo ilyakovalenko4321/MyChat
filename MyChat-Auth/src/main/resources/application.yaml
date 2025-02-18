@@ -1,0 +1,21 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: MyChat-Auth
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?currentSchema=${DATABASE_CURRENT_SCHEMA}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+
+server:
+  port: ${MAIN_PORT}
+
+jwt:
+  secretKey: dXNlLXN0cm9uZy1hbmQtdmFsaWQtYmFzZTY0LWtleQ==
+  accessLiveTime: 86400
+  refreshLiveTime: 8640000
