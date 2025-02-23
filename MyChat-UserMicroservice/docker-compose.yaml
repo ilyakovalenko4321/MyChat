@@ -1,0 +1,17 @@
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9090:9090"
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: miniominio
+      MINIO_ROOT_PASSWORD: miniominio
+    volumes:
+      - minio-data:/minio
+    command: server ~/minio --console-address :9090
+
+volumes:
+  minio-data:
+    driver: local
