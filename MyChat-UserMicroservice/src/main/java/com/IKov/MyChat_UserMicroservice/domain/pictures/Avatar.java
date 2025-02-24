@@ -1,4 +1,4 @@
-package com.IKov.MyChat_UserMicroservice.domain.profiles;
+package com.IKov.MyChat_UserMicroservice.domain.pictures;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -6,13 +6,14 @@ import lombok.Data;
 @Entity
 @Table(name = "profile_pictures")
 @Data
-public class ProfilePicture {
+public class Avatar {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @Column(nullable = false)
+    private String userTag;
 
     private String pictureUrl;
 }

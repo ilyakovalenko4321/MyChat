@@ -1,8 +1,7 @@
 package com.IKov.MyChat_UserMicroservice.service.Impl;
 
 import com.IKov.MyChat_UserMicroservice.domain.exception.BucketCreationException;
-import com.IKov.MyChat_UserMicroservice.domain.profiles.ProfilePicture;
-import com.IKov.MyChat_UserMicroservice.domain.profiles.UserProfile;
+import com.IKov.MyChat_UserMicroservice.domain.pictures.Avatar;
 import com.IKov.MyChat_UserMicroservice.repository.ProfilePictureRepository;
 import com.IKov.MyChat_UserMicroservice.service.ImageService;
 import com.IKov.MyChat_UserMicroservice.service.props.MinioProps;
@@ -28,7 +27,7 @@ public class ImageServiceImpl implements ImageService {
     private final ProfilePictureRepository profilePictureRepository;
 
     @Override
-    public ProfilePicture uploadImage(MultipartFile multipartFile, Long userId) {
+    public Avatar uploadImage(MultipartFile multipartFile, String userTag) {
         try{
             createBucket();
         } catch (Exception e){
@@ -47,7 +46,7 @@ public class ImageServiceImpl implements ImageService {
 
         String url = saveImage(inputStream, fileName);
 
-        return saveImageUrl(url, userId);
+        return saveImageUrl(url, userTag);
     }
 
     @SneakyThrows
@@ -76,12 +75,12 @@ public class ImageServiceImpl implements ImageService {
         return fileName;
     }
 
-    private ProfilePicture saveImageUrl(String url, Long userId){
-        ProfilePicture profilePicture = new ProfilePicture();
-        profilePicture.setUserId(userId);
+    private Avatar saveImageUrl(String url, String userTag){
+        Avatar avatar = new Avatar();
+        avatar.setUserTag(userTag);
 
-        profilePicture.setPictureUrl(url);
-        return profilePictureRepository.save(profilePicture);
+        avatar.setPictureUrl(url);
+        return profilePictureRepository.save(avatar);
     }
 
 }

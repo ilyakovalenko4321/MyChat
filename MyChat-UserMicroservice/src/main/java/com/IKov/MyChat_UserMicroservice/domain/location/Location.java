@@ -1,4 +1,4 @@
-package com.IKov.MyChat_UserMicroservice.domain.profiles;
+package com.IKov.MyChat_UserMicroservice.domain.location;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -8,13 +8,14 @@ import org.locationtech.jts.geom.Point;
 @Data
 @Entity
 @Table(name = "user_locations")
-public class UserLocation {
+public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long user_id;
+    @Column(nullable = false)
+    private String userTag;
 
     private String city;
     private String country;

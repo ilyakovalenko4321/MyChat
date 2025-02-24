@@ -1,19 +1,17 @@
 package com.IKov.MyChat_UserMicroservice.web.dto;
 
-import com.IKov.MyChat_UserMicroservice.domain.profiles.UserProfile;
+import com.IKov.MyChat_UserMicroservice.domain.profiles.HOBBY;
+import com.IKov.MyChat_UserMicroservice.domain.profiles.PROFESSION;
+import com.IKov.MyChat_UserMicroservice.domain.profiles.Profile;
 import com.IKov.MyChat_UserMicroservice.web.deserializer.PointDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.locationtech.jts.geom.Point;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Data
 public class UserProfileDto {
@@ -35,15 +33,27 @@ public class UserProfileDto {
     @Pattern(regexp = "^\\+?[0-9]*$", message = "Phone number must contain only digits and optional leading plus sign")
     private String phoneNumber;                // Номер телефона (необязательный)
 
-    @NotNull(message = "Date of birth cannot be null")
-    @Past(message = "Date of birth must be in the past")
-    private LocalDate dateOfBirth;             // Дата рождения
+    @NotNull
+    private Integer weight;
+
+    @NotNull
+    private Double height;
+
+    private HOBBY hobby;
+
+    @NotNull
+    private PROFESSION profession;
+
+    private Long earnings;
+
+    @NotNull(message = "Age cannot be null")
+    private Integer age;
 
     @NotNull(message = "Gender cannot be null")
-    private UserProfile.GENDER gender;         // Пол пользователя (например, MALE, FEMALE, OTHER)
+    private Profile.GENDER gender;         // Пол пользователя (например, MALE, FEMALE, OTHER)
 
     @NotNull(message = "Orientation cannot be null")
-    private UserProfile.ORIENTATION orientation; // Ориентация (например, HETERO, HOMO, BI)
+    private Profile.ORIENTATION orientation; // Ориентация (например, HETERO, HOMO, BI)
 
     @Size(max = 500, message = "About me section must be 500 characters or less")
     private String aboutMe;                    // Описание профиля
@@ -62,10 +72,5 @@ public class UserProfileDto {
 
     @NotNull()
     List<MultipartFile> pictures;
-
-    @AssertTrue(message = "User must be at least 18 years old")
-    public boolean isValidOld() {
-        return (dateOfBirth.isBefore(LocalDate.now().minusYears(18)) && (dateOfBirth.isAfter(LocalDate.now().minusYears(100))));
-    }
 
 }
