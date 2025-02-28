@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "profile_pictures")
+@Table(name = "user_pictures")
 @Data
 public class Avatar {
 

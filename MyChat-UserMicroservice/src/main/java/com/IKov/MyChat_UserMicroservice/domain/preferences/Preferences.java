@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "preferences")
+@Table(name = "user_preferences")
 public class Preferences {
 
     @Id

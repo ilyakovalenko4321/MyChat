@@ -39,10 +39,10 @@ public class UserProfileDto {
     @NotNull
     private Double height;
 
-    private HOBBY hobby;
+    private List<HOBBY> hobby;
 
     @NotNull
-    private PROFESSION profession;
+    private List<PROFESSION> profession;
 
     private Long earnings;
 
@@ -51,9 +51,6 @@ public class UserProfileDto {
 
     @NotNull(message = "Gender cannot be null")
     private Profile.GENDER gender;         // Пол пользователя (например, MALE, FEMALE, OTHER)
-
-    @NotNull(message = "Orientation cannot be null")
-    private Profile.ORIENTATION orientation; // Ориентация (например, HETERO, HOMO, BI)
 
     @Size(max = 500, message = "About me section must be 500 characters or less")
     private String aboutMe;                    // Описание профиля
@@ -64,13 +61,28 @@ public class UserProfileDto {
     @NotBlank(message = "Country cannot be blank")
     private String country;                    // Страна
 
-    @Past()
-    private LocalDateTime createdAt;           // Дата создания профиля
-
     @JsonDeserialize(using = PointDeserializer.class)
     private Point location;
 
     @NotNull()
     List<MultipartFile> pictures;
+
+    @NotNull
+    private Double personalityExtraversion;
+
+    @NotNull
+    private Double personalityOpenness;
+
+    @NotNull
+    private Double personalityConscientiousness;
+
+    @NotNull
+    private Double lifeValueFamily;
+
+    @NotNull
+    private Double lifeValueCareer;
+
+    @NotNull
+    private Double activityLevel;
 
 }

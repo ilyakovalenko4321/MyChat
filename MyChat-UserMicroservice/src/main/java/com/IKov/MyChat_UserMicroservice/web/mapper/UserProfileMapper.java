@@ -2,13 +2,14 @@ package com.IKov.MyChat_UserMicroservice.web.mapper;
 
 import com.IKov.MyChat_UserMicroservice.domain.location.Location;
 import com.IKov.MyChat_UserMicroservice.domain.profiles.Profile;
+import com.IKov.MyChat_UserMicroservice.web.dto.KafkaDto;
 import com.IKov.MyChat_UserMicroservice.web.dto.UserProfileDto;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserProfileMapper {
 
-    public static UserProfileDto toDto(Profile profile) {
+    public UserProfileDto toDto(Profile profile) {
         if (profile == null) {
             return null;
         }
@@ -25,16 +26,20 @@ public class UserProfileMapper {
         dto.setEarnings(profile.getEarnings());
         dto.setAge(profile.getAge());
         dto.setGender(profile.getGender());
-        dto.setOrientation(profile.getOrientation());
+
         dto.setAboutMe(profile.getAboutMe());
         dto.setCity(profile.getCity());
         dto.setCountry(profile.getCountry());
-        dto.setCreatedAt(profile.getCreatedAt());
-
+        dto.setPersonalityExtraversion(profile.getPersonalityExtraversion());
+        dto.setPersonalityOpenness(profile.getPersonalityOpenness());
+        dto.setPersonalityConscientiousness(profile.getPersonalityConscientiousness());
+        dto.setLifeValueFamily(profile.getLifeValueFamily());
+        dto.setLifeValueCareer(profile.getLifeValueCareer());
+        dto.setActivityLevel(profile.getActivityLevel());
         return dto;
     }
 
-    public static Profile toEntity(UserProfileDto dto) {
+    public Profile toEntity(UserProfileDto dto) {
         if (dto == null) {
             return null;
         }
@@ -51,15 +56,44 @@ public class UserProfileMapper {
         profile.setEarnings(dto.getEarnings());
         profile.setAge(dto.getAge());
         profile.setGender(dto.getGender());
-        profile.setOrientation(dto.getOrientation());
         profile.setAboutMe(dto.getAboutMe());
         profile.setCity(dto.getCity());
         profile.setCountry(dto.getCountry());
-        profile.setCreatedAt(dto.getCreatedAt());
+        profile.setPersonalityExtraversion(dto.getPersonalityExtraversion());
+        profile.setPersonalityOpenness(dto.getPersonalityOpenness());
+        profile.setPersonalityConscientiousness(dto.getPersonalityConscientiousness());
+        profile.setLifeValueFamily(dto.getLifeValueFamily());
+        profile.setLifeValueCareer(dto.getLifeValueCareer());
+        profile.setActivityLevel(dto.getActivityLevel());
         return profile;
     }
 
-    public static Location toLocation(UserProfileDto dto) {
+    public KafkaDto toKafkaDto(Profile profile) {
+        if (profile == null) {
+            throw new IllegalArgumentException("Profile cannot be null");
+        }
+
+        KafkaDto dto = new KafkaDto();
+        dto.setUserTag(profile.getTag());
+        dto.setHeight(profile.getHeight());
+        dto.setAge(profile.getAge() != null ? profile.getAge().longValue() : null);
+        dto.setWeight(profile.getWeight());
+        dto.setEarnings(profile.getEarnings());
+        dto.setBeauty(profile.getBeauty());
+        dto.setPersonalityExtraversion(profile.getPersonalityExtraversion());
+        dto.setPersonalityOpenness(profile.getPersonalityOpenness());
+        dto.setPersonalityConscientiousness(profile.getPersonalityConscientiousness());
+        dto.setLifeValueFamily(profile.getLifeValueFamily());
+        dto.setLifeValueCareer(profile.getLifeValueCareer());
+        dto.setActivityLevel(profile.getActivityLevel());
+        dto.setGender(profile.getGender());
+        return dto;
+    }
+
+    public Location toLocation(UserProfileDto dto) {
+        if (dto == null) {
+            return null;
+        }
         Location location = new Location();
         location.setCity(dto.getCity());
         location.setCountry(dto.getCountry());
