@@ -28,14 +28,4 @@ public class StatisticsServiceImpl implements StatisticsService {
         log.info("Пересчитана статистика для пользователя {}", userProperties.getUserTag());
         return statistics;
     }
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void saveNewAverageUser() {
-        RecommendationStatistics statisticsMALE = redisStatisticsService.getStatistics(GENDER.MALE);
-        RecommendationStatistics statisticsFEMALE = redisStatisticsService.getStatistics(GENDER.FEMALE);
-
-        statisticRepository.saveOrUpdate(statisticsMALE);
-        statisticRepository.saveOrUpdate(statisticsFEMALE);
-        log.info("Ежедневное сохранение статистики завершено");
-    }
 }

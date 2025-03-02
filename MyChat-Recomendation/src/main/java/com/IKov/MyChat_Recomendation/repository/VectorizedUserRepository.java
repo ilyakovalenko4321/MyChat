@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
+import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +28,9 @@ public class VectorizedUserRepository {
     private static final String INDEX_FEMALE = "vectorized_users_female";
     private static final String INDEX_OTHER = "vectorized_users_other";
 
-    public void save(VectorizedUser user) {
+    public void save(VectorizedUser user, UserTemporalData temporalData) {
         try {
-            String indexName = getIndexName(user.getGender(), false);
+            String indexName = getIndexName(user.getGender(), temporalData  ,  false);
             IndexRequest<VectorizedUser> request = IndexRequest.of(i -> i
                     .index(indexName)
                     .id(user.getUserTag())
@@ -45,24 +46,27 @@ public class VectorizedUserRepository {
      * @param gender Пол пользователя
      * @param opposite Если true, возвращает индекс для противоположного пола
      */
-    private String getIndexName(GENDER gender, boolean opposite) {
+    private String getIndexName(GENDER gender, UserTemporalData temporalData, boolean opposite) {
+        String result;
         if (!opposite) {
             if (gender == GENDER.MALE) {
-                return INDEX_MALE;
+                result =  INDEX_MALE;
             } else if (gender == GENDER.FEMALE) {
-                return INDEX_FEMALE;
+                result =  INDEX_FEMALE;
             } else {
-                return INDEX_OTHER;
+                result =  INDEX_OTHER;
             }
         } else {
             // При поиске противоположного пола: если не MALE, то ищем MALE, иначе FEMALE
-            return (gender != GENDER.MALE) ? INDEX_MALE : INDEX_FEMALE;
+            result = (gender != GENDER.MALE) ? INDEX_MALE : INDEX_FEMALE;
         }
+        result += temporalData.getTemporaryTable();
+        return result;
     }
 
-    public List<VectorizedUser> findSimilarUsers(VectorizedUser vectorizedUser, Integer neighborsNumber) {
+    public List<VectorizedUser> findSimilarUsers(VectorizedUser vectorizedUser, UserTemporalData temporalData, Integer neighborsNumber) {
         try {
-            String index = getIndexName(vectorizedUser.getGender(), true);
+            String index = getIndexName(vectorizedUser.getGender(), temporalData, true);
 
             List<Float> queryVectorList = DoubleStream.of(vectorizedUser.getVector())
                     .mapToObj(d -> (float) d)
@@ -84,5 +88,9 @@ public class VectorizedUserRepository {
             log.error("Ошибка при поиске схожих пользователей: {}", e.getMessage());
             throw new RuntimeException("Ошибка при поиске схожих пользователей", e);
         }
+    }
+
+    public VectorizedUser findByTag(String tag){
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package com.IKov.MyChat_Recomendation.service.Impl;
 
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
+import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
 import com.IKov.MyChat_Recomendation.repository.VectorizedUserRepository;
 import com.IKov.MyChat_Recomendation.service.ElasticsearchService;
@@ -16,13 +17,12 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     private final VectorizedUserRepository vectorizedUserRepository;
 
     @Override
-    public void saveUser(VectorizedUser user) {
-        vectorizedUserRepository.save(user);
+    public void saveUser(VectorizedUser user, UserTemporalData temporalData) {
+        vectorizedUserRepository.save(user, temporalData);
     }
 
     @Override
     public Optional<VectorizedUser> findByUserTag(String userTag) {
-        // TODO: Реализовать поиск пользователя по тегу
         return Optional.empty();
     }
 

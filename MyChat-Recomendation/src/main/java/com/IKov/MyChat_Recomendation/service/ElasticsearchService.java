@@ -1,6 +1,7 @@
 package com.IKov.MyChat_Recomendation.service;
 
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
+import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface ElasticsearchService {
     /**
      * Сохранение пользователя в Elasticsearch
      */
-    void saveUser(VectorizedUser user);
+    void saveUser(VectorizedUser user, UserTemporalData temporalData);
 
     /** Поиск пользователя по userTag */
     Optional<VectorizedUser> findByUserTag(String userTag);

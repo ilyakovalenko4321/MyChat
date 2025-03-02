@@ -1,7 +1,9 @@
 package com.IKov.MyChat_Recomendation.service.Impl;
 
 import com.IKov.MyChat_Recomendation.domain.statistic.RecommendationStatistics;
+import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
+import com.IKov.MyChat_Recomendation.repository.TemporaryRepository;
 import com.IKov.MyChat_Recomendation.service.ElasticsearchService;
 import com.IKov.MyChat_Recomendation.service.RedisStatisticsService;
 import com.IKov.MyChat_Recomendation.service.StatisticsService;
@@ -11,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,12 +23,17 @@ public class UserVectorizeServiceImpl implements UserVectorizeService {
     private final StatisticsService statisticsService;
     private final RedisStatisticsService redisStatisticsService;
     private final ElasticsearchService elasticsearchService;
+    private final TemporaryRepository temporaryRepository;
 
     @Override
     public void vectorize(UserPropertiesToVectorize properties) {
         VectorizedUser vectorizedUser = vectorizeByGender(properties);
+        UserTemporalData temporalData = createTemporaryData(vectorizedUser);
+
+        elasticsearchService.saveUser(vectorizedUser, temporalData);
+        temporaryRepository.save(temporalData);
+
         updateStatisticsWithNewUser(properties);
-        elasticsearchService.saveUser(vectorizedUser);
         log.info("Пользователь {} векторизован и сохранён", properties.getUserTag());
     }
 
@@ -66,6 +75,17 @@ public class UserVectorizeServiceImpl implements UserVectorizeService {
                 user.getLifeValueCareer() != null ? user.getLifeValueCareer() : stats.getAvgLifeValueCareer(),
                 user.getActivityLevel() != null ? user.getActivityLevel() : stats.getAvgActivityLevel()
         };
+    }
 
+    private UserTemporalData createTemporaryData(VectorizedUser vectorize){
+        Random random = new Random();
+        UserTemporalData temporalData = new UserTemporalData();
+        temporalData.setOffsetUsers(0);
+        temporalData.setUserTag(vectorize.getUserTag());
+        int tableNumber = Math.abs(vectorize.getUserTag().hashCode()) % 5;
+        temporalData.setTemporaryTable(tableNumber);
+        temporalData.setGender(vectorize.getGender());
+        temporalData.setVectorArray(vectorize.getVector());
+        return temporalData;
     }
 }

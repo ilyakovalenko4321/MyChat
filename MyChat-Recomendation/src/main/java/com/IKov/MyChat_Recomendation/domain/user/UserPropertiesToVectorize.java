@@ -1,5 +1,6 @@
 package com.IKov.MyChat_Recomendation.domain.user;
 
+import jakarta.persistence.Entity;
 import lombok.Data;
 
 @Data
@@ -30,5 +31,4 @@ public class UserPropertiesToVectorize {
     private Double lifeValueCareer; // Важность карьеры
 
     private Double activityLevel; // Физическая/социальная активность
-
 }

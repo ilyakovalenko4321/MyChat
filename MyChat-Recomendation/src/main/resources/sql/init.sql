@@ -13,3 +13,12 @@ CREATE TABLE recommendation_statistics (
                                  avg_activity_level DOUBLE PRECISION
 );
 ALTER TABLE recommendation_statistics ADD COLUMN number BIGINT;
+
+CREATE TABLE user_temporal_data(
+    user_tag VARCHAR(50) PRIMARY KEY,
+    temporary_table INT,
+    offset_users INT
+);
+
+ALTER TABLE user_temporal_data ADD COLUMN gender TEXT;
+ALTER TABLE user_temporal_data ADD COLUMN vector TEXT;
