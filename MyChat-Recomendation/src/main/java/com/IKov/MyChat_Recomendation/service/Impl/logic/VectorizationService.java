@@ -1,4 +1,4 @@
-package com.IKov.MyChat_Recomendation.service.Impl;
+package com.IKov.MyChat_Recomendation.service.Impl.logic;
 
 import com.IKov.MyChat_Recomendation.domain.statistic.RecommendationStatistics;
 import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
@@ -6,7 +6,6 @@ import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUserMapper;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUserSql;
 import com.IKov.MyChat_Recomendation.repository.TemporaryRepository;
-import com.IKov.MyChat_Recomendation.repository.VectorizedUserRepository;
 import com.IKov.MyChat_Recomendation.repository.VectorizedUserRepositorySql;
 import com.IKov.MyChat_Recomendation.service.ElasticsearchService;
 import com.IKov.MyChat_Recomendation.service.RedisStatisticsService;
@@ -22,7 +21,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserVectorizeServiceImpl implements UserVectorizeService {
+public class VectorizationService implements UserVectorizeService {
 
     private final StatisticsService statisticsService;
     private final RedisStatisticsService redisStatisticsService;

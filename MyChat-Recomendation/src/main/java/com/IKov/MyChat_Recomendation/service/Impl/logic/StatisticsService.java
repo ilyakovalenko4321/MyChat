@@ -1,22 +1,18 @@
-package com.IKov.MyChat_Recomendation.service.Impl;
+package com.IKov.MyChat_Recomendation.service.Impl.logic;
 
 import com.IKov.MyChat_Recomendation.domain.statistic.RecommendationStatistics;
-import com.IKov.MyChat_Recomendation.domain.user.GENDER;
 import com.IKov.MyChat_Recomendation.repository.StatisticRepository;
 import com.IKov.MyChat_Recomendation.service.RedisStatisticsService;
-import com.IKov.MyChat_Recomendation.service.StatisticsService;
 import com.IKov.MyChat_Recomendation.domain.user.UserPropertiesToVectorize;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StatisticsServiceImpl implements StatisticsService {
+public class StatisticsService implements com.IKov.MyChat_Recomendation.service.StatisticsService {
 
-    private final StatisticRepository statisticRepository;
     private final RedisStatisticsService redisStatisticsService;
 
     @Override

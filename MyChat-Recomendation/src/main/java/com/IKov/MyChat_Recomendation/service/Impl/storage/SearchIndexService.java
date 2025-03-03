@@ -1,10 +1,12 @@
-package com.IKov.MyChat_Recomendation.service.Impl;
+package com.IKov.MyChat_Recomendation.service.Impl.storage;
 
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
 import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
 import com.IKov.MyChat_Recomendation.repository.VectorizedUserRepository;
 import com.IKov.MyChat_Recomendation.service.ElasticsearchService;
+import com.IKov.MyChat_Recomendation.service.props.ElasticsearchProps;
+import com.IKov.MyChat_Recomendation.service.props.KafkaProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,10 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ElasticsearchServiceImpl implements ElasticsearchService {
+public class SearchIndexService implements ElasticsearchService {
 
     private final VectorizedUserRepository vectorizedUserRepository;
+    private final ElasticsearchProps elasticsearchProps;
 
     @Override
     public void saveUser(VectorizedUser user, UserTemporalData temporalData) {
@@ -48,10 +51,10 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
     @Override
     public void dropAll() {
-        for(int i = 1; i < 6; i++){
+        for(int i = elasticsearchProps.getMinShardNumber(); i <= elasticsearchProps.getMaxShardNumber(); i++){
             vectorizedUserRepository.dropIndex(GENDER.MALE, i);
         }
-        for(int i = 1; i < 6; i++){
+        for(int i = elasticsearchProps.getMinShardNumber(); i <= elasticsearchProps.getMaxShardNumber(); i++){
             vectorizedUserRepository.dropIndex(GENDER.FEMALE, i);
         }
     }

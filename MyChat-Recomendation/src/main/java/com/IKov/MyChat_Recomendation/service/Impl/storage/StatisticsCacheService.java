@@ -1,4 +1,4 @@
-package com.IKov.MyChat_Recomendation.service.Impl;
+package com.IKov.MyChat_Recomendation.service.Impl.storage;
 
 import com.IKov.MyChat_Recomendation.domain.statistic.RecommendationStatistics;
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RedisStatisticsServiceImpl implements RedisStatisticsService {
+public class StatisticsCacheService implements RedisStatisticsService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 

@@ -1,4 +1,4 @@
-package com.IKov.MyChat_Recomendation.service.Impl;
+package com.IKov.MyChat_Recomendation.service.Impl.scheduler;
 
 import com.IKov.MyChat_Recomendation.domain.statistic.RecommendationStatistics;
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
@@ -11,6 +11,7 @@ import com.IKov.MyChat_Recomendation.repository.TemporaryRepository;
 import com.IKov.MyChat_Recomendation.repository.VectorizedUserRepositorySql;
 import com.IKov.MyChat_Recomendation.service.ElasticsearchService;
 import com.IKov.MyChat_Recomendation.service.RedisStatisticsService;
+import com.IKov.MyChat_Recomendation.service.props.ElasticsearchProps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ScheduledServiceImpl {
+public class DailyProcessingScheduler {
 
     private final StatisticRepository statisticRepository;
     private final RedisStatisticsService redisStatisticsService;
@@ -32,6 +33,7 @@ public class ScheduledServiceImpl {
     private final ElasticsearchService elasticsearchService;
     private final VectorizedUserRepositorySql vectorizedUserRepositorySql;
     private final VectorizedUserMapper vectorizedUserMapper;
+    private final ElasticsearchProps elasticsearchProps;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void saveNewAverageUser() {
@@ -43,59 +45,6 @@ public class ScheduledServiceImpl {
         log.info("Ежедневное сохранение статистики завершено");
     }
 
-//    @Scheduled(cron = "0 */2 * * * *") // Запуск каждый день в полночь
-//    @Transactional
-//    public void setNewTemporaryData() {
-//        int offset = 0;
-//        boolean hasMoreRows = true;
-//
-//        // Генератор случайных чисел
-//        Random random = new Random();
-//
-//        while (hasMoreRows) {
-//            // Выбираем пачку user_tag
-//            int BATCH_SIZE = 1000;
-//            List<UserTemporalData> userTemporalDataList = temporaryRepository.findAllWithOffsetAndLimit(offset, BATCH_SIZE);
-//
-//            // Если пачка пустая, завершаем цикл
-//            if (userTemporalDataList.isEmpty()) {
-//                hasMoreRows = false;
-//            } else {
-//                // Обновляем каждую строку в текущей пачке
-//                for (UserTemporalData userTemporalData : userTemporalDataList) {
-//                    int newTemporaryTableValue = random.nextInt(5) + 1; // Случайное число от 1 до 5
-//                    userTemporalData.setTemporaryTable(newTemporaryTableValue);
-//                    temporaryRepository.save(userTemporalData);
-//                }
-//
-//                offset += BATCH_SIZE;
-//            }
-//        }
-//
-//        elasticsearchService.dropAll();
-//
-//        offset = 0;
-//        hasMoreRows = true;
-//
-//        while (hasMoreRows) {
-//            // Выбираем пачку user_tag
-//            int BATCH_SIZE = 1000;
-//            List<UserTemporalData> userTemporalDataList = temporaryRepository.findAllWithOffsetAndLimit(offset, BATCH_SIZE);
-//
-//            // Если пачка пустая, завершаем цикл
-//            if (userTemporalDataList.isEmpty()) {
-//                hasMoreRows = false;
-//            } else {
-//                userTemporalDataList.forEach(user -> {
-//                    VectorizedUserSql vectorizedUserSql = vectorizedUserRepositorySql.getByUserTag(user.getUserTag());
-//                    VectorizedUser vectorizedUser = vectorizedUserMapper.toElasticsearchEntity(vectorizedUserSql);
-//                    elasticsearchService.saveUser(vectorizedUser, user);
-//                });
-//                offset += BATCH_SIZE;
-//            }
-//        }
-//    }
-
     @Scheduled(cron = "0 0 2 * * *") // Запуск каждый день в 2 AM
     @Transactional
     public void setNewTemporaryData() {
@@ -106,7 +55,7 @@ public class ScheduledServiceImpl {
 
         while (!(batch = temporaryRepository.findAllWithOffsetAndLimit(offset, BATCH_SIZE)).isEmpty()) {
             batch.forEach(user -> {
-                user.setTemporaryTable(random.nextInt(5) + 1);
+                user.setTemporaryTable(random.nextInt(elasticsearchProps.getMaxShardNumber()) + 1);
                 user.setOffsetUsers(0);
             });
             temporaryRepository.saveAll(batch);
