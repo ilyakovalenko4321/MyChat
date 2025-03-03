@@ -15,10 +15,13 @@ CREATE TABLE recommendation_statistics (
 ALTER TABLE recommendation_statistics ADD COLUMN number BIGINT;
 
 CREATE TABLE user_temporal_data(
-    user_tag VARCHAR(50) PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
+    user_tag VARCHAR(50) UNIQUE ,
     temporary_table INT,
     offset_users INT
 );
+
+DROP TABLE user_temporal_data;
 
 ALTER TABLE user_temporal_data ADD COLUMN gender TEXT;
 ALTER TABLE user_temporal_data ADD COLUMN vector TEXT;

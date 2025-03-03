@@ -25,4 +25,9 @@ public interface ElasticsearchService {
 
     /** Удаление пользователя */
     void deleteUser(String userTag);
+
+    void dropAll();
+
+
+    void saveAllUsers(List<VectorizedUser> users, List<UserTemporalData> temporalDataList);
 }

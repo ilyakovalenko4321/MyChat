@@ -3,7 +3,11 @@ package com.IKov.MyChat_Recomendation.service.Impl;
 import com.IKov.MyChat_Recomendation.domain.statistic.RecommendationStatistics;
 import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
+import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUserMapper;
+import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUserSql;
 import com.IKov.MyChat_Recomendation.repository.TemporaryRepository;
+import com.IKov.MyChat_Recomendation.repository.VectorizedUserRepository;
+import com.IKov.MyChat_Recomendation.repository.VectorizedUserRepositorySql;
 import com.IKov.MyChat_Recomendation.service.ElasticsearchService;
 import com.IKov.MyChat_Recomendation.service.RedisStatisticsService;
 import com.IKov.MyChat_Recomendation.service.StatisticsService;
@@ -24,14 +28,18 @@ public class UserVectorizeServiceImpl implements UserVectorizeService {
     private final RedisStatisticsService redisStatisticsService;
     private final ElasticsearchService elasticsearchService;
     private final TemporaryRepository temporaryRepository;
+    private final VectorizedUserRepositorySql vectorizedUserRepositorySql   ;
+    private final VectorizedUserMapper vectorizedUserMapper;
 
     @Override
     public void vectorize(UserPropertiesToVectorize properties) {
         VectorizedUser vectorizedUser = vectorizeByGender(properties);
         UserTemporalData temporalData = createTemporaryData(vectorizedUser);
+        VectorizedUserSql vectorizedUserSql = vectorizedUserMapper.toSqlEntity(vectorizedUser);
 
         elasticsearchService.saveUser(vectorizedUser, temporalData);
         temporaryRepository.save(temporalData);
+        vectorizedUserRepositorySql.save(vectorizedUserSql);
 
         updateStatisticsWithNewUser(properties);
         log.info("Пользователь {} векторизован и сохранён", properties.getUserTag());
@@ -84,8 +92,6 @@ public class UserVectorizeServiceImpl implements UserVectorizeService {
         temporalData.setUserTag(vectorize.getUserTag());
         int tableNumber = Math.abs(vectorize.getUserTag().hashCode()) % 5;
         temporalData.setTemporaryTable(tableNumber);
-        temporalData.setGender(vectorize.getGender());
-        temporalData.setVectorArray(vectorize.getVector());
         return temporalData;
     }
 }

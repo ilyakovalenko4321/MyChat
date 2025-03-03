@@ -26,7 +26,7 @@ public class UserDataGeneratorService {
     private final LocationRepository locationRepository;
     private final KafkaService kafkaService;
 
-    private static final int PROFILES_PER_GENDER = 5_000;
+    private static final int PROFILES_PER_GENDER = 10_000;
     private final Random random = new Random();
 
     // Выбираем случайную центральную точку (широта, долгота)
