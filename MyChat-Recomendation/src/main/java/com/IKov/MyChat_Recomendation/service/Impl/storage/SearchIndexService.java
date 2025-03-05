@@ -1,6 +1,7 @@
 package com.IKov.MyChat_Recomendation.service.Impl.storage;
 
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
+import com.IKov.MyChat_Recomendation.domain.user.UserPropertiesToVectorize;
 import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
 import com.IKov.MyChat_Recomendation.repository.VectorizedUserRepository;
@@ -52,10 +53,10 @@ public class SearchIndexService implements ElasticsearchService {
     @Override
     public void dropAll() {
         for(int i = elasticsearchProps.getMinShardNumber(); i <= elasticsearchProps.getMaxShardNumber(); i++){
-            vectorizedUserRepository.dropIndex(GENDER.MALE, i);
+            vectorizedUserRepository.truncateIndex(GENDER.MALE, i);
         }
         for(int i = elasticsearchProps.getMinShardNumber(); i <= elasticsearchProps.getMaxShardNumber(); i++){
-            vectorizedUserRepository.dropIndex(GENDER.FEMALE, i);
+            vectorizedUserRepository.truncateIndex(GENDER.FEMALE, i);
         }
     }
 
@@ -64,5 +65,13 @@ public class SearchIndexService implements ElasticsearchService {
         vectorizedUserRepository.saveAll(users, temporalDataList);
         log.info("Сохранено {} пользователей в Elasticsearch", users.size());
     }
+
+    @Override
+    public List<VectorizedUser> getSimilarUsers(VectorizedUser vectorizedUser, UserTemporalData temporalData) {
+         List<VectorizedUser> vectorizedUsers = vectorizedUserRepository.findSimilarUsers(vectorizedUser, temporalData, 100);
+
+        return vectorizedUsers;
+    }
+
 
 }

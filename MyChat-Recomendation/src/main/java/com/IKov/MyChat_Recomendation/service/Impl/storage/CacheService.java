@@ -2,16 +2,22 @@ package com.IKov.MyChat_Recomendation.service.Impl.storage;
 
 import com.IKov.MyChat_Recomendation.domain.statistic.RecommendationStatistics;
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
+import com.IKov.MyChat_Recomendation.domain.user.Profile;
 import com.IKov.MyChat_Recomendation.service.RedisStatisticsService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StatisticsCacheService implements RedisStatisticsService {
+public class CacheService implements RedisStatisticsService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -41,5 +47,25 @@ public class StatisticsCacheService implements RedisStatisticsService {
     public void deleteStatistics(GENDER gender) {
         redisTemplate.delete(getKey(gender));
         log.info("Статистика для {} удалена из Redis.", gender);
+    }
+
+    public void saveUserPartnerStack(List<Profile> profiles, String tag){
+        profiles.forEach(profile -> redisTemplate.opsForList().rightPush(tag, profile));
+    }
+
+    public List<Profile> getUserPartnerStack(String tag, Integer stackLength){
+        List<Object> objectProfiles = redisTemplate.opsForList().rightPop(tag, stackLength);
+        if(objectProfiles!=null && !objectProfiles.isEmpty()) {
+            List<Profile> profiles = new ArrayList<>(80);
+            Gson gson = new GsonBuilder().create();
+            for (Object profileObject : objectProfiles) {
+                System.out.println("Raw from Redis: " + profileObject);
+                System.out.println("Class: " + profileObject.getClass().getName());
+            }
+            objectProfiles.forEach(profileObject -> profiles.add((Profile) profileObject));
+            return profiles;
+        }else{
+            return null;
+        }
     }
 }

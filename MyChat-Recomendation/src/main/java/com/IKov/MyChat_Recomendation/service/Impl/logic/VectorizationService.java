@@ -68,28 +68,42 @@ public class VectorizationService implements UserVectorizeService {
         log.info("Обновлена статистика для пользователя {}", properties.getUserTag());
     }
 
-    private double[] buildNotNormalizedUserVector(UserPropertiesToVectorize user, RecommendationStatistics stats){
+    private double[] buildNotNormalizedUserVector(UserPropertiesToVectorize user, RecommendationStatistics stats) {
+        // Множители, подобранные с учётом исследований предпочтений женщин
+        double heightMultiplier = 12.0;
+        double ageMultiplier = 4.0;
+        double weightMultiplier = 0.8;
+        double earningsMultiplier = 2.5;
+        double beautyMultiplier = 1.0;
+        double extraversionMultiplier = 0.8;
+        double opennessMultiplier = 0.8;
+        double conscientiousnessMultiplier = 1.0;
+        double lifeValueFamilyMultiplier = 1.4;
+        double lifeValueCareerMultiplier = 0.5;
+        double activityLevelMultiplier = 0.5;
+
         return new double[]{
-                user.getHeight() != null ? user.getHeight() : stats.getAvgHeight(),
-                user.getAge() != null ? user.getAge() : stats.getAvgAge(),
-                user.getWeight() != null ? user.getWeight() : stats.getAvgWeight(),
-                user.getEarnings() != null ? user.getEarnings() : stats.getAvgEarnings(),
-                user.getBeauty() != null ? user.getBeauty() : stats.getAvgBeauty(),
-                user.getPersonalityExtraversion() != null ? user.getPersonalityExtraversion() : stats.getAvgPersonalityExtraversion(),
-                user.getPersonalityOpenness() != null ? user.getPersonalityOpenness() : stats.getAvgPersonalityOpenness(),
-                user.getPersonalityConscientiousness() != null ? user.getPersonalityConscientiousness() : stats.getAvgPersonalityConscientiousness(),
-                user.getLifeValueFamily() != null ? user.getLifeValueFamily() : stats.getAvgLifeValueFamily(),
-                user.getLifeValueCareer() != null ? user.getLifeValueCareer() : stats.getAvgLifeValueCareer(),
-                user.getActivityLevel() != null ? user.getActivityLevel() : stats.getAvgActivityLevel()
+                user.getHeight() != null ? (user.getHeight() / stats.getAvgHeight()) * heightMultiplier : 1.0,
+                user.getAge() != null ? ((double) user.getAge() / stats.getAvgAge()) * ageMultiplier : 1.0,
+                user.getWeight() != null ? (user.getWeight() / stats.getAvgWeight()) * weightMultiplier : 1.0,
+                user.getEarnings() != null ? ((double) user.getEarnings() / stats.getAvgEarnings()) * earningsMultiplier : 1.0,
+                user.getBeauty() != null ? (user.getBeauty() / stats.getAvgBeauty()) * beautyMultiplier : 1.0,
+                user.getPersonalityExtraversion() != null ? (user.getPersonalityExtraversion() / stats.getAvgPersonalityExtraversion()) * extraversionMultiplier : 1.0,
+                user.getPersonalityOpenness() != null ? (user.getPersonalityOpenness() / stats.getAvgPersonalityOpenness()) * opennessMultiplier : 1.0,
+                user.getPersonalityConscientiousness() != null ? (user.getPersonalityConscientiousness() / stats.getAvgPersonalityConscientiousness()) * conscientiousnessMultiplier : 1.0,
+                user.getLifeValueFamily() != null ? (user.getLifeValueFamily() / stats.getAvgLifeValueFamily()) * lifeValueFamilyMultiplier : 1.0,
+                user.getLifeValueCareer() != null ? (user.getLifeValueCareer() / stats.getAvgLifeValueCareer()) * lifeValueCareerMultiplier : 1.0,
+                user.getActivityLevel() != null ? (user.getActivityLevel() / stats.getAvgActivityLevel()) * activityLevelMultiplier : 1.0
         };
     }
+
 
     private UserTemporalData createTemporaryData(VectorizedUser vectorize){
         Random random = new Random();
         UserTemporalData temporalData = new UserTemporalData();
         temporalData.setOffsetUsers(0);
         temporalData.setUserTag(vectorize.getUserTag());
-        int tableNumber = Math.abs(vectorize.getUserTag().hashCode()) % 5;
+        int tableNumber = Math.abs(vectorize.getUserTag().hashCode()) % 5 + 1;
         temporalData.setTemporaryTable(tableNumber);
         return temporalData;
     }

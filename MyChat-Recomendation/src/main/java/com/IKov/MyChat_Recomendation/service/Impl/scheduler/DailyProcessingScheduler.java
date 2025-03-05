@@ -45,12 +45,12 @@ public class DailyProcessingScheduler {
         log.info("Ежедневное сохранение статистики завершено");
     }
 
-    @Scheduled(cron = "0 0 2 * * *") // Запуск каждый день в 2 AM
+    @Scheduled(cron = "0 0 3 * * *") // Запуск каждый день в 2 AM
     @Transactional
     public void setNewTemporaryData() {
         Random random = new Random();
         int offset = 0;
-        int BATCH_SIZE = 1000;
+        int BATCH_SIZE = 5000;
         List<UserTemporalData> batch;
 
         while (!(batch = temporaryRepository.findAllWithOffsetAndLimit(offset, BATCH_SIZE)).isEmpty()) {

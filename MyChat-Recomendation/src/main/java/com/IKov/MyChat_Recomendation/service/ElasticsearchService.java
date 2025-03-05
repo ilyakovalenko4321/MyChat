@@ -1,6 +1,7 @@
 package com.IKov.MyChat_Recomendation.service;
 
 import com.IKov.MyChat_Recomendation.domain.user.GENDER;
+import com.IKov.MyChat_Recomendation.domain.user.UserPropertiesToVectorize;
 import com.IKov.MyChat_Recomendation.domain.user.UserTemporalData;
 import com.IKov.MyChat_Recomendation.domain.vector.VectorizedUser;
 
@@ -30,4 +31,6 @@ public interface ElasticsearchService {
 
 
     void saveAllUsers(List<VectorizedUser> users, List<UserTemporalData> temporalDataList);
+
+    List<VectorizedUser> getSimilarUsers(VectorizedUser vectorizedUser, UserTemporalData userTemporalData);
 }

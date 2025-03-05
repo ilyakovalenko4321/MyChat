@@ -2,10 +2,7 @@ package com.IKov.MyChat_Recomendation.repository;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.KnnSearch;
-import co.elastic.clients.elasticsearch.core.BulkResponse;
-import co.elastic.clients.elasticsearch.core.IndexRequest;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
 import co.elastic.clients.elasticsearch.indices.DeleteIndexResponse;
@@ -22,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import co.elastic.clients.elasticsearch.core.BulkRequest;
 
 @Repository
 @RequiredArgsConstructor
@@ -38,16 +34,28 @@ public class VectorizedUserRepository {
     public void save(VectorizedUser user, UserTemporalData temporalData) {
         try {
             String indexName = getIndexName(user.getGender(), temporalData.getTemporaryTable(), false);
-            IndexRequest<VectorizedUser> request = IndexRequest.of(i -> i
+
+            // Преобразуем double[] в List<Float>
+            List<Float> vectorAsList = DoubleStream.of(user.getVector())
+                    .mapToObj(d -> (float) d)
+                    .toList();
+
+            Map<String, Object> doc = new HashMap<>();
+            doc.put("userTag", user.getUserTag());
+            doc.put("gender", user.getGender().toString());
+            doc.put("vector", vectorAsList); // Теперь вектор передаём в виде списка
+
+            IndexRequest<Map<String, Object>> request = IndexRequest.of(i -> i
                     .index(indexName)
                     .id(user.getUserTag())
-                    .document(user));
+                    .document(doc));
             client.index(request);
         } catch (IOException e) {
             log.error("Ошибка при сохранении пользователя с тегом {}: {}", user.getUserTag(), e.getMessage());
             throw new RuntimeException("Ошибка при сохранении данных", e);
         }
     }
+
 
     public void dropIndex(GENDER gender, Integer shard) {
         String indexName = getIndexName(gender, shard, false);
@@ -66,6 +74,22 @@ public class VectorizedUserRepository {
             throw new RuntimeException("Ошибка при удалении индекса " + indexName, e);
         }
     }
+
+    public void truncateIndex(GENDER gender, Integer shard) {
+        String indexName = getIndexName(gender, shard, false);
+        try {
+            DeleteByQueryRequest request = DeleteByQueryRequest.of(d -> d
+                    .index(indexName)
+                    .query(q -> q.matchAll(m -> m))
+            );
+            client.deleteByQuery(request);
+            log.info("Индекс {} очищен", indexName);
+        } catch (IOException e) {
+            log.error("Ошибка при очистке индекса {}: {}", indexName, e.getMessage());
+            throw new RuntimeException("Ошибка при очистке индекса", e);
+        }
+    }
+
 
     /**
      * @param gender Пол пользователя
@@ -99,6 +123,7 @@ public class VectorizedUserRepository {
 
             SearchRequest searchRequest = SearchRequest.of(s -> s
                     .index(index)
+                    .size(400)
                     .knn(List.of(KnnSearch.of(knn -> knn
                             .field("vector")
                             .queryVector(queryVectorList)
@@ -126,18 +151,48 @@ public class VectorizedUserRepository {
 
         try {
             // Группируем пользователей по индексам
-            Map<String, List<VectorizedUser>> usersByIndex = new HashMap<>();
+            Map<String, List<IndexRequest<Map<String, Object>>>> requestsByIndex = new HashMap<>();
+
             for (int i = 0; i < users.size(); i++) {
                 VectorizedUser user = users.get(i);
                 UserTemporalData temporalData = temporalDataList.get(i);
                 String indexName = getIndexName(user.getGender(), temporalData.getTemporaryTable(), false);
 
-                usersByIndex.computeIfAbsent(indexName, k -> new ArrayList<>()).add(user);
+                // Преобразуем double[] в List<Float>
+                List<Float> vectorAsList = DoubleStream.of(user.getVector())
+                        .mapToObj(d -> (float) d)
+                        .toList();
+
+                Map<String, Object> doc = new HashMap<>();
+                doc.put("userTag", user.getUserTag());
+                doc.put("gender", user.getGender().toString());
+                doc.put("vector", vectorAsList); // Теперь вектор передаем в виде списка
+
+                // Создаем запрос на индексацию
+                IndexRequest<Map<String, Object>> request = IndexRequest.of(iq -> iq
+                        .index(indexName)
+                        .id(user.getUserTag()) // Или используйте другой идентификатор, если это необходимо
+                        .document(doc));
+
+                // Группируем запросы по индексам
+                requestsByIndex.computeIfAbsent(indexName, k -> new ArrayList<>()).add(request);
             }
 
-            // Используем Bulk API для массового сохранения
-            BulkRequest.Builder bulkRequestBuilder = getBuilder(usersByIndex);
+            // Создаем BulkRequest
+            BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
 
+            // Добавляем запросы на индексацию в BulkRequest
+            requestsByIndex.forEach((indexName, requests) -> {
+                requests.forEach(request -> {
+                    bulkRequestBuilder.operations(b -> b.index(op -> op
+                            .index(indexName)
+                            .id(request.id())
+                            .document(request.document())
+                    ));
+                });
+            });
+
+            // Выполняем bulk-запрос
             BulkResponse response = client.bulk(bulkRequestBuilder.build());
 
             if (response.errors()) {
@@ -156,6 +211,8 @@ public class VectorizedUserRepository {
             throw new RuntimeException("Ошибка при сохранении пользователей в Elasticsearch", e);
         }
     }
+
+
 
     private static BulkRequest.Builder getBuilder(Map<String, List<VectorizedUser>> usersByIndex) {
         BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();

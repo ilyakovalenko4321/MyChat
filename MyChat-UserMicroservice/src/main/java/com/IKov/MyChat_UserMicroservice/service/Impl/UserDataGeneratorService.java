@@ -11,13 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-@Service
+//@Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserDataGeneratorService {
@@ -26,30 +25,44 @@ public class UserDataGeneratorService {
     private final LocationRepository locationRepository;
     private final KafkaService kafkaService;
 
-    private static final int PROFILES_PER_GENDER = 10_000;
+    private static final int PROFILES_PER_GENDER = 1000_000;
+    private static final int BATCH_SIZE = 1_000;
     private final Random random = new Random();
 
     // Выбираем случайную центральную точку (широта, долгота)
     private final double[] centerPoint = {randomDouble(-10, 10), randomDouble(-10, 10)};
 
-    @PostConstruct
+    //@PostConstruct
     @Transactional
     public void generateUserProfiles() {
-        List<Profile> profiles = new ArrayList<>(PROFILES_PER_GENDER * 2);
+        List<Profile> profiles = new ArrayList<>(BATCH_SIZE);
 
         for (int i = 0; i < PROFILES_PER_GENDER; i++) {
             profiles.add(createProfile(GENDER.MALE, i));
+
+            if ((i + 1) % BATCH_SIZE == 0) {
+                saveBatch(profiles);
+            }
         }
+
         for (int i = 0; i < PROFILES_PER_GENDER; i++) {
             profiles.add(createProfile(GENDER.FEMALE, i));
+
+            if ((i + 1) % BATCH_SIZE == 0) {
+                saveBatch(profiles);
+            }
         }
 
-        userRepository.saveAll(profiles);
-        profiles.forEach(this::saveLocation); // Сохраняем локации
-        profiles.forEach(kafkaService::send); // Отправляем в Kafka
+        log.info("Сгенерировано {} мужских и {} женских профилей (всего {}) и отправлено в Kafka.",
+                PROFILES_PER_GENDER, PROFILES_PER_GENDER, PROFILES_PER_GENDER * 2);
+    }
 
-        log.info("Сгенерировано {} профилей каждого пола (всего {}) и отправлено в Kafka.",
-                PROFILES_PER_GENDER, profiles.size());
+
+    private void saveBatch(List<Profile> profiles) {
+        userRepository.saveAll(profiles);
+        profiles.forEach(this::saveLocation);
+        profiles.forEach(kafkaService::send);
+        profiles.clear();
     }
 
     private Profile createProfile(GENDER gender, int index) {
@@ -58,7 +71,7 @@ public class UserDataGeneratorService {
         profile.setTag(tag + UUID.randomUUID());
         profile.setName("Name" + index);
         profile.setSurname("Surname" + index);
-        profile.setEmail(tag + UUID.randomUUID()+ "@example.com");
+        profile.setEmail(tag + UUID.randomUUID() + "@example.com");
         profile.setPhoneNumber(generatePhoneNumber());
         profile.setWeight(randomInt(50, 100));
         profile.setHeight(randomDouble(1.50, 2.00));
@@ -112,7 +125,7 @@ public class UserDataGeneratorService {
     }
 
     private long randomLong(long min, long max) {
-        return min + (long)((max - min) * random.nextDouble());
+        return min + (long) ((max - min) * random.nextDouble());
     }
 
     private String generatePhoneNumber() {

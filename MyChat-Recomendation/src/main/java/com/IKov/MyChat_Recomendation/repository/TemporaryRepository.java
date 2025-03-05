@@ -28,4 +28,6 @@ public interface TemporaryRepository extends JpaRepository<UserTemporalData, Str
             @Param("offset") int offset,
             @Param("limit") int limit
     );
+
+    UserTemporalData findByUserTag(String userTag);
 }
