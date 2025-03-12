@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: MyChat-Swipe
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mychat?currentSchema=public
+    username: postgres
+    password: Rts28022007
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+
+server:
+  port: 8084
+
+kafka:
+  topic: notification-topic
+
+beauty-adjust:
+  likeUniversalAdjust: 0.05
+  skipUniversalAdjust: 0.01
+  saveBatchSize: 1000
+
+redis-props:
+  expirationHours: 24
+
+postgres-props:
+  expirationDate: 10

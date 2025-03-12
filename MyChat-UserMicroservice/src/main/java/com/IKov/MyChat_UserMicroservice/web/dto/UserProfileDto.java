@@ -64,7 +64,7 @@ public class UserProfileDto {
     @JsonDeserialize(using = PointDeserializer.class)
     private Point location;
 
-    @NotNull()
+    //@NotNull()
     List<MultipartFile> pictures;
 
     @NotNull

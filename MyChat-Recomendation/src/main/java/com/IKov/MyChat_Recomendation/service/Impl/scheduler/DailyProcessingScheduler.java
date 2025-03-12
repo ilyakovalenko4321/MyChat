@@ -81,4 +81,9 @@ public class DailyProcessingScheduler {
             offset += BATCH_SIZE;
         }
     }
+
+    @Scheduled(cron = "0 30 3 * * *")
+    public void deleteRedisStats(){
+        redisStatisticsService.dropRedis();
+    }
 }

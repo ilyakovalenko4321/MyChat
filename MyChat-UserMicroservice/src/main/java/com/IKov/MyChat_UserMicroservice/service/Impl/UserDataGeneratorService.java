@@ -25,7 +25,7 @@ public class UserDataGeneratorService {
     private final LocationRepository locationRepository;
     private final KafkaService kafkaService;
 
-    private static final int PROFILES_PER_GENDER = 1000_000;
+    private static final int PROFILES_PER_GENDER = 1_000;
     private static final int BATCH_SIZE = 1_000;
     private final Random random = new Random();
 

@@ -11,4 +11,6 @@ public interface RedisStatisticsService {
 
     void saveStatistics(GENDER gender, RecommendationStatistics stats);
 
+    void dropRedis();
+
 }

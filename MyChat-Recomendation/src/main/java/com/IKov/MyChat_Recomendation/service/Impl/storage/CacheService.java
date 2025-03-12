@@ -32,6 +32,11 @@ public class CacheService implements RedisStatisticsService {
     }
 
     @Override
+    public void dropRedis() {
+        redisTemplate.delete("*");
+    }
+
+    @Override
     public RecommendationStatistics getStatistics(GENDER gender) {
         RecommendationStatistics recommendationStatistics = (RecommendationStatistics) redisTemplate.opsForValue().get(getKey(gender));
         if (recommendationStatistics != null && recommendationStatistics.getAvgAge() != null) {

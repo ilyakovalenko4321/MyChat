@@ -70,15 +70,15 @@ public class VectorizationService implements UserVectorizeService {
 
     private double[] buildNotNormalizedUserVector(UserPropertiesToVectorize user, RecommendationStatistics stats) {
         // Множители, подобранные с учётом исследований предпочтений женщин
-        double heightMultiplier = 12.0;
-        double ageMultiplier = 4.0;
-        double weightMultiplier = 0.8;
-        double earningsMultiplier = 2.5;
+        double heightMultiplier = 32.0;
+        double ageMultiplier = 2.2;
+        double weightMultiplier = 2.0;
+        double earningsMultiplier = 2.2;
         double beautyMultiplier = 1.0;
         double extraversionMultiplier = 0.8;
         double opennessMultiplier = 0.8;
         double conscientiousnessMultiplier = 1.0;
-        double lifeValueFamilyMultiplier = 1.4;
+        double lifeValueFamilyMultiplier = 1.1;
         double lifeValueCareerMultiplier = 0.5;
         double activityLevelMultiplier = 0.5;
 

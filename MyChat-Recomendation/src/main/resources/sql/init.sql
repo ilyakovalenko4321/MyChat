@@ -25,3 +25,19 @@ DROP TABLE user_temporal_data;
 
 ALTER TABLE user_temporal_data ADD COLUMN gender TEXT;
 ALTER TABLE user_temporal_data ADD COLUMN vector TEXT;
+
+
+WITH vector_parts AS (
+    SELECT
+        user_tag,
+        i AS part_index,
+        (string_to_array(vector, ','))[i]::numeric AS part_value
+    FROM users_vectorized,
+         generate_subscripts(string_to_array(vector, ','), 1) AS i
+)
+SELECT
+    part_index,
+    max(part_value) - min(part_value) AS diff
+FROM vector_parts
+GROUP BY part_index
+ORDER BY part_index;

@@ -27,11 +27,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public void register(@Valid @RequestBody RegisterRequest registerRequest, BindingResult bindingResult){
-
         if(bindingResult.hasErrors()){
-        throw new RuntimeException();
+            throw new RuntimeException();
         }
-
         User user = userMapper.toEntity(registerRequest);
         authService.register(user);
     }
