@@ -1,5 +1,6 @@
 package com.IKov.MyChat_Swipe.service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public interface RedisService {
@@ -11,5 +12,9 @@ public interface RedisService {
     void deleteLikeMessage(String firstUserTag, String secondUserTag);
 
     Map<String, Double> getAdjustedUsers();
+
+    void adjustBeauty(String receivingUser);
+
+    void postPass(String passedUserTag);
 
 }

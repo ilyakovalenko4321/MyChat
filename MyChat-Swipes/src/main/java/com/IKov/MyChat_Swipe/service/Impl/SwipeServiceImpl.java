@@ -16,8 +16,11 @@ public class SwipeServiceImpl implements SwipeService {
     private final KafkaService kafkaService;
 
     @Override
-    public void pass(String userTag) {
-
+    public void pass(String userTag, String passingUserTag) {
+        redisService.postPass(userTag);
+        if(redisService.likeExists(userTag, passingUserTag)){
+            redisService.deleteLikeMessage(userTag, passingUserTag);
+        }
     }
 
     @Override
@@ -26,6 +29,7 @@ public class SwipeServiceImpl implements SwipeService {
         if(redisService.likeExists(userTag, likedUserTag)){
             kafkaService.send(userTag, likedUserTag);
             redisService.deleteLikeMessage(userTag, likedUserTag);
+            redisService.adjustBeauty(likedUserTag);
             return;
         } else if(postgresService.likeExists(userTag, likedUserTag)){
             kafkaService.send(userTag, likedUserTag);

@@ -9,9 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +26,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void deleteExpiredLikes() {
         postgresService.deleteExpiredLikes();
     }
-
 
     @Override
     @Scheduled(cron = "0 30 3 * * *")

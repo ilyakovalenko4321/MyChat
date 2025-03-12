@@ -14,6 +14,8 @@ import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -33,7 +35,7 @@ public class RedisServiceImpl implements RedisService {
 
     @Override
     public void postLike(String userTag, String likedUserTag) {
-        adjustBeauty(likedUserTag+"like", adjustProps.getLikeUniversalAdjust());
+        adjustBeauty(likedUserTag);
         redisTemplate.opsForValue().set(userTag + likedUserTag, true, redisProps.getExpirationHours(), TimeUnit.HOURS);
     }
 
@@ -43,10 +45,20 @@ public class RedisServiceImpl implements RedisService {
         redisTemplate.delete(secondUserTag+firstUserTag);
     }
 
-    private void adjustBeauty(String receivingUser, double adjust) {
+    @Override
+    public void adjustBeauty(String receivingUser) {
+        receivingUser = receivingUser+"like";
         Object value = redisTemplate.opsForValue().get(receivingUser);
         double currentAdjust = (value instanceof Double) ? (Double) value : 0.0;
-        redisTemplate.opsForValue().set(receivingUser, currentAdjust + adjust);
+        redisTemplate.opsForValue().set(receivingUser, currentAdjust + adjustProps.getLikeUniversalAdjust(), redisProps.getExpirationHours(), TimeUnit.HOURS);
+    }
+
+    @Override
+    public void postPass(String passedUserTag) {
+        passedUserTag = passedUserTag+"like";
+        Object value = redisTemplate.opsForValue().get(passedUserTag);
+        double currentAdjust = (value instanceof Double) ? (Double) value : 0.0;
+        redisTemplate.opsForValue().set(passedUserTag, currentAdjust + adjustProps.getSkipUniversalAdjust(), redisProps.getExpirationHours(), TimeUnit.HOURS);
     }
 
     @Override

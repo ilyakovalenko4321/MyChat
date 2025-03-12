@@ -5,5 +5,4 @@ public interface ScheduleService {
     void deleteExpiredLikes();
 
     void updateUserStatistics();
-
 }
