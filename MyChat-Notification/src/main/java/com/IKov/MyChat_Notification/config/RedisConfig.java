@@ -1,0 +1,4 @@
+package com.IKov.MyChat_Notification.config;
+
+public class RedisConfig {
+}
