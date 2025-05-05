@@ -25,14 +25,14 @@ public class UserDataGeneratorService {
     private final LocationRepository locationRepository;
     private final KafkaService kafkaService;
 
-    private static final int PROFILES_PER_GENDER = 1_000;
+    private static final int PROFILES_PER_GENDER = 15_000;
     private static final int BATCH_SIZE = 1_000;
     private final Random random = new Random();
 
     // Выбираем случайную центральную точку (широта, долгота)
     private final double[] centerPoint = {randomDouble(-10, 10), randomDouble(-10, 10)};
 
-    //@PostConstruct
+    @PostConstruct
     @Transactional
     public void generateUserProfiles() {
         List<Profile> profiles = new ArrayList<>(BATCH_SIZE);
@@ -95,7 +95,7 @@ public class UserDataGeneratorService {
 
     private void saveLocation(Profile profile) {
         double[] point = generatePointNear(centerPoint[0], centerPoint[1], 300); // Генерируем в пределах 300 км
-        String locationWKT = String.format("POINT(%f %f)", point[1], point[0]); // WKT формат: (долгота, широта)
+        String locationWKT = String.format("POINT(%f %f)", point[1], point[0]);
         locationRepository.saveUserLocation(profile.getTag(), profile.getCity(), profile.getCountry(), locationWKT);
     }
 
