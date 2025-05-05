@@ -18,12 +18,13 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void register(User user) {
+    public boolean register(User user) {
         checkIfEmailExists(user.getEmail());
         String encodedPassword = encodePassword(user.getPassword());
         user.setPassword(encodedPassword);
         saveUser(user);
         sendUserToKafka(user);
+        return true;
     }
 
     private void checkIfEmailExists(String email) {

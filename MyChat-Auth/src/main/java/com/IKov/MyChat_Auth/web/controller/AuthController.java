@@ -26,12 +26,12 @@ public class AuthController {
     private final UserMapper userMapper;
 
     @PostMapping("/register")
-    public void register(@Valid @RequestBody RegisterRequest registerRequest, BindingResult bindingResult){
+    public boolean register(@Valid @RequestBody RegisterRequest registerRequest, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             throw new RuntimeException();
         }
         User user = userMapper.toEntity(registerRequest);
-        authService.register(user);
+        return authService.register(user);
     }
 
     @GetMapping("/login")
