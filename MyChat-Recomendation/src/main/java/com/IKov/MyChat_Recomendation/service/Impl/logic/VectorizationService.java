@@ -36,9 +36,10 @@ public class VectorizationService implements UserVectorizeService {
         UserTemporalData temporalData = createTemporaryData(vectorizedUser);
         VectorizedUserSql vectorizedUserSql = vectorizedUserMapper.toSqlEntity(vectorizedUser);
 
-        elasticsearchService.saveUser(vectorizedUser, temporalData);
         temporaryRepository.save(temporalData);
         vectorizedUserRepositorySql.save(vectorizedUserSql);
+        elasticsearchService.saveUser(vectorizedUser, temporalData);
+
 
         updateStatisticsWithNewUser(properties);
         log.info("Пользователь {} векторизован и сохранён", properties.getUserTag());

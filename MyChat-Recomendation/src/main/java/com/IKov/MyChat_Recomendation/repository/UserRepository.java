@@ -1,6 +1,7 @@
 package com.IKov.MyChat_Recomendation.repository;
 
 import com.IKov.MyChat_Recomendation.domain.user.Profile;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -10,65 +11,72 @@ import java.util.List;
 @Repository
 public class UserRepository {
 
-    // Данные для подключения к базе данных (они могут быть заменены на параметры из application.properties)
-    private static final String URL = "jdbc:postgresql://localhost:5432/mychat";
+    @Value("${spring.datasource.host}")
+    private String host;
+
+    @Value("${spring.datasource.port}")
+    private String port;
+
     private static final String USER = "postgres";
     private static final String PASSWORD = "Rts28022007";
+    private static final String DB_NAME = "mychat";
 
-    // Метод для получения профиля по тегу
+    private String getDatabaseUrl() {
+        return "jdbc:postgresql://" + host + ":" + port + "/" + DB_NAME;
+    }
+
     public Profile getProfileByTag(String tag) {
         Profile profile = null;
-
-        // SQL запрос
         String sql = "SELECT * FROM user_profiles WHERE tag = ?";
 
-        // Подключение к базе данных
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection connection = DriverManager.getConnection(getDatabaseUrl(), USER, PASSWORD);
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            // Установка параметра для запроса
             statement.setString(1, tag);
 
-            // Выполнение запроса
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Если профиль найден, создаем объект Profile
                     profile = mapResultSetToProfile(resultSet);
                 }
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();  // Логирование ошибки подключения и запроса
+            e.printStackTrace();
         }
 
         return profile;
     }
 
-    public List<Profile> getProfilesByTags(List<String> tags){
+    public List<Profile> getProfilesByTags(List<String> tags) {
         List<Profile> profiles = new ArrayList<>();
 
-        // SQL запрос
-        String sql = "SELECT * FROM user_profiles WHERE tag = ?";
+        if (tags == null || tags.isEmpty()) {
+            return profiles;
+        }
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            PreparedStatement statement = connection.prepareStatement(sql)){
+        String placeholders = String.join(", ", tags.stream().map(t -> "?").toArray(String[]::new));
+        String sql = "SELECT * FROM user_profiles WHERE tag IN (" + placeholders + ")";
 
-            for(int i = 0; i < tags.size(); i++){
-                statement.setString(1, tags.get(i));
+        try (Connection connection = DriverManager.getConnection(getDatabaseUrl(), USER, PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-                try(ResultSet resultSet = statement.executeQuery()){
-                    if(resultSet.next()){
-                        profiles.add(mapResultSetToProfile(resultSet));
-                    }
+            for (int i = 0; i < tags.size(); i++) {
+                statement.setString(i + 1, tags.get(i));
+            }
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    profiles.add(mapResultSetToProfile(resultSet));
                 }
             }
 
-        }catch (Exception e){
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
         return profiles;
     }
 
-    // Метод для преобразования строки данных из ResultSet в объект Profile
     private Profile mapResultSetToProfile(ResultSet resultSet) throws SQLException {
         Profile profile = new Profile();
         profile.setId(resultSet.getLong("id"));

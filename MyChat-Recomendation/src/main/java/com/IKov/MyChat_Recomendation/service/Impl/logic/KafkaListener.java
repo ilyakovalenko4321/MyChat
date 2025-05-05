@@ -42,7 +42,7 @@ public class KafkaListener implements KafkaDataReceiver {
             // Векторизация данных
             userVectorize.vectorize(properties);
 
-            // Отправляем подтверждение в другом потоке
+
             acknowledgeOffsetAsync(record);
 
             log.info("Обработано Kafka-сообщение для пользователя {}", properties.getUserTag());
@@ -53,7 +53,7 @@ public class KafkaListener implements KafkaDataReceiver {
         }
     }
 
-    private void acknowledgeOffsetAsync (ReceiverRecord<String, Object> record){
+        private void acknowledgeOffsetAsync (ReceiverRecord<String, Object> record){
         CompletableFuture.runAsync(() -> {
             try {
                 record.receiverOffset().acknowledge();

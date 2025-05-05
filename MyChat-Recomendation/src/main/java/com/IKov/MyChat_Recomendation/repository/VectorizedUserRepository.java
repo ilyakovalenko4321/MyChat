@@ -52,6 +52,7 @@ public class VectorizedUserRepository {
             client.index(request);
         } catch (IOException e) {
             log.error("Ошибка при сохранении пользователя с тегом {}: {}", user.getUserTag(), e.getMessage());
+            log.error("Ошибка при сохранении пользователя", e);
             throw new RuntimeException("Ошибка при сохранении данных", e);
         }
     }
@@ -192,7 +193,7 @@ public class VectorizedUserRepository {
                 });
             });
 
-            // Выполняем bulk-запрос
+
             BulkResponse response = client.bulk(bulkRequestBuilder.build());
 
             if (response.errors()) {
