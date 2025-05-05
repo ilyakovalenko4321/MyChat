@@ -6,6 +6,7 @@ import com.IKov.MyChat_Swipe.service.RedisService;
 import com.IKov.MyChat_Swipe.service.SwipeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +28,12 @@ public class SwipeServiceImpl implements SwipeService {
     public void like(String userTag, String likedUserTag) {
 
         if(redisService.likeExists(userTag, likedUserTag)){
-            kafkaService.send(userTag, likedUserTag);
+            kafkaService.send(userTag, likedUserTag).subscribe();
             redisService.deleteLikeMessage(userTag, likedUserTag);
             redisService.adjustBeauty(likedUserTag);
             return;
         } else if(postgresService.likeExists(userTag, likedUserTag)){
-            kafkaService.send(userTag, likedUserTag);
+            kafkaService.send(userTag, likedUserTag).subscribe();
             return;
         }
 

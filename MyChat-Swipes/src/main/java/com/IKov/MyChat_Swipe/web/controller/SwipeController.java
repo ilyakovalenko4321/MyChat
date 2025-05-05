@@ -15,7 +15,7 @@ public class SwipeController {
 
     private final SwipeService swipeService;
 
-    @PostMapping("pass")
+    @PostMapping("/pass")
     public void pass(@RequestBody LikeDto likeDto){
         String userTag = likeDto.getUserTag();
         String passingUserTag = likeDto.getLikedUserTag();

@@ -6,5 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaProps {
+    private String bootstrapServers;
     private String topic;
 }
