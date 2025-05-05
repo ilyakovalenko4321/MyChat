@@ -1,4 +1,4 @@
-package com.IKov.MyChat_UserMicroservice.domain.profiles;
+package com.IKov.MyChat_LoadedTest.entity;
 
 public enum PROFESSION {
     SOFTWARE_ENGINEER,

@@ -1,88 +1,120 @@
-package com.IKov.MyChat_UserMicroservice.web.dto;
+package com.IKov.MyChat_LoadedTest.entity;
 
-import com.IKov.MyChat_UserMicroservice.domain.profiles.HOBBY;
-import com.IKov.MyChat_UserMicroservice.domain.profiles.PROFESSION;
-import com.IKov.MyChat_UserMicroservice.domain.profiles.Profile;
-import com.IKov.MyChat_UserMicroservice.web.deserializer.PointDeserializer;
+import com.IKov.MyChat_LoadedTest.controller.PointSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import jakarta.validation.constraints.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Data
-public class UserProfileDto {
+public class UserProfile {
 
-    @NotBlank(message = "Tag cannot be blank")
-    @Size(min = 3, max = 20, message = "Tag must be between 3 and 20 characters")
     private String tag;                        // Имя пользователя
 
-    @NotNull(message = "Email cannot be null")
-    @Email(message = "Invalid email format")
     private String email;                      // Электронная почта
 
-    @NotNull
     private String name;
 
-    @NotNull
     private String surname;
 
-    @Pattern(regexp = "^\\+?[0-9]*$", message = "Phone number must contain only digits and optional leading plus sign")
     private String phoneNumber;                // Номер телефона (необязательный)
 
-    @NotNull
     private Integer weight;
 
-    @NotNull
     private Double height;
 
     private List<HOBBY> hobby;
 
-    @NotNull
     private List<PROFESSION> profession;
 
     private Long earnings;
 
-    @NotNull(message = "Age cannot be null")
     private Integer age;
 
-    @NotNull(message = "Gender cannot be null")
-    private Profile.GENDER gender;         // Пол пользователя (например, MALE, FEMALE, OTHER)
+    private GENDER gender;         // Пол пользователя (например, MALE, FEMALE, OTHER)
 
-    @Size(max = 500, message = "About me section must be 500 characters or less")
     private String aboutMe;                    // Описание профиля
 
-    @NotBlank(message = "City cannot be blank")
     private String city;                       // Город проживания
 
-    @NotBlank(message = "Country cannot be blank")
     private String country;                    // Страна
 
-    @JsonDeserialize(using = PointDeserializer.class)
+    @JsonSerialize(using = PointSerializer.class)
     private Point location;
 
-    //@NotNull()
     List<MultipartFile> pictures;
 
-    @NotNull
     private Double personalityExtraversion;
 
-    @NotNull
     private Double personalityOpenness;
 
-    @NotNull
     private Double personalityConscientiousness;
 
-    @NotNull
     private Double lifeValueFamily;
 
-    @NotNull
     private Double lifeValueCareer;
 
-    @NotNull
     private Double activityLevel;
 
+    public static UserProfile generateSingleUserProfile() {
+        Random random = new Random();
+        long ts = System.currentTimeMillis();
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
+
+        UserProfile p = new UserProfile();
+        p.setTag("tag" + ts + random.nextInt(1, 1000000));
+        p.setEmail("user" + ts + random.nextInt() + "@example.com");
+        p.setName("Name" + ts);
+        p.setSurname("Surname" + ts);
+        p.setPhoneNumber("+" + (1000000000L + ts % 1000000000));
+        p.setWeight(50 + (int)(ts % 50));                           // от 50 до 99
+        p.setHeight(1.5 + (ts % 50) / 100.0);                       // от 1.50 до 1.99
+
+        // выбрать по одному случайному enum
+        HOBBY[] hobbies = HOBBY.values();
+        p.setHobby(List.of(hobbies[(int)(ts % hobbies.length)]));
+        PROFESSION[] profs = PROFESSION.values();
+        p.setProfession(List.of(profs[(int)((ts+1) % profs.length)]));
+
+        p.setEarnings(1000L + ts % 100_000);                        // от 1000 до 100999
+        p.setAge(18 + (int)(ts % 50));                              // от 18 до 67
+        p.setGender((ts % 2 == 0) ? GENDER.MALE : GENDER.FEMALE);
+        p.setAboutMe("About me text " + ts);
+        p.setCity("City" + ts);
+        p.setCountry("Country" + ts);
+
+
+        Point pt = new GeometryFactory().createPoint(new Coordinate(0, 0));
+        p.setLocation(pt);
+
+        // пустой список картинок
+        p.setPictures(Collections.<MultipartFile>emptyList());
+
+        // в диапазоне 0–10
+        double base = (ts % 1000) / 100.0;
+        p.setPersonalityExtraversion(base);
+        p.setPersonalityOpenness(base + 0.1);
+        p.setPersonalityConscientiousness(base + 0.2);
+        p.setLifeValueFamily(base + 0.3);
+        p.setLifeValueCareer(base + 0.4);
+        p.setActivityLevel(base + 0.5);
+
+        return p;
+    }
+
+    public enum GENDER {
+        MALE, FEMALE
+    }
+
+    public byte[] getPictureBytes(){
+        return new byte[600];
+    }
 }
